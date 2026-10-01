@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>We Don't Talk Anymore &mdash; Moonlit Garden</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #03060e;
+}
+
+body {
+    font-family: Georgia, "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+#root {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.reel {
+    position: absolute;
+    inset: 0;
+}
+
+/* =========================================
+   THE 3D GARDEN CANVAS
+========================================= */
+
+.garden-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 1;
+}
+
+.scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            ellipse at 50% 54%,
+            rgba(3, 9, 26, .58) 0%,
+            rgba(3, 9, 26, .34) 34%,
+            rgba(3, 9, 26, .06) 62%,
+            transparent 78%
+        );
+}
+
+.vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    background:
+        radial-gradient(
+            ellipse at 50% 46%,
+            transparent 40%,
+            rgba(2, 5, 15, .45) 78%,
+            rgba(1, 3, 10, .9) 100%
+        );
+}
+
+/* The black bars that make it feel like a film */
+
+.cine-top,
+.cine-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 5.6vh;
+    z-index: 6;
+    pointer-events: none;
+    background: #01040b;
+}
+
+.cine-top { top: 0; }
+.cine-bottom { bottom: 0; }
+
+/* A whisper of film grain over the whole picture */
+
+.film-grain {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    opacity: .05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
+    animation: grain 1.2s steps(3) infinite;
+}
+
+@keyframes grain {
+    0%   { transform: translate(0, 0); }
+    33%  { transform: translate(-7px, 5px); }
+    66%  { transform: translate(6px, -6px); }
+    100% { transform: translate(0, 0); }
+}
+
+/* =========================================
+   LYRIC AREA
+   Every line sits in the same spot, only
+   the words change.
+========================================= */
+
+.lyric-stage {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    pointer-events: none;
+}
+
+.lyric {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+
+    transform:
+        translateY(-50%)
+        translateY(22px)
+        scale(.94);
+
+    opacity: 0;
+    filter: blur(5px);
+
+    color: #f2f8ff;
+
+    font-size: clamp(24px, 3.5vw, 56px);
+    line-height: 1.32;
+    font-weight: 500;
+    font-style: italic;
+    letter-spacing: .6px;
+    text-align: center;
+
+    padding: 0 6vw;
+
+    text-shadow:
+        0 2px 14px rgba(0, 8, 24, .95),
+        0 0 22px rgba(150, 205, 255, .45),
+        0 0 60px rgba(70, 130, 220, .45);
+
+    transition:
+        opacity .55s ease,
+        transform .55s ease,
+        filter .55s ease;
+
+    will-change: opacity, transform, filter;
+}
+
+.lyric.active {
+    opacity: 1;
+    filter: blur(0);
+    transform:
+        translateY(-50%)
+        translateY(0)
+        scale(1);
+    animation: lyric-glow 3.2s ease-in-out infinite;
+}
+
+/* Longer lines step down a size, so the widest lyric still
+   sits inside the frame instead of running off both sides. */
+
+.lyric.long {
+    font-size: clamp(21px, 2.9vw, 42px);
+}
+
+.lyric.very-long {
+    font-size: clamp(18px, 2.4vw, 34px);
+}
+
+@keyframes lyric-glow {
+    0%, 100% {
+        text-shadow:
+            0 2px 14px rgba(0, 8, 24, .95),
+            0 0 20px rgba(150, 205, 255, .40),
+            0 0 52px rgba(70, 130, 220, .35);
+    }
+    50% {
+        text-shadow:
+            0 2px 14px rgba(0, 8, 24, .95),
+            0 0 30px rgba(190, 228, 255, .8),
+            0 0 80px rgba(90, 165, 255, .55);
+    }
+}
+
+.bottom-heart {
+    position: absolute;
+    left: 50%;
+    bottom: calc(5.6vh + 20px);
+    transform: translateX(-50%);
+    z-index: 7;
+    font-size: 15px;
+    color: #bcd8ff;
+    opacity: .5;
+    filter: drop-shadow(0 0 10px rgba(120, 180, 255, .7));
+    pointer-events: none;
+    animation: heart-beat 3.4s ease-in-out infinite;
+}
+
+@keyframes heart-beat {
+    0%, 100% { transform: translateX(-50%) scale(1);    opacity: .42; }
+    50%      { transform: translateX(-50%) scale(1.22); opacity: .8; }
+}
+
+/* =========================================
+   LOADER + FALLBACK
+========================================= */
+
+.loader {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    background: #03060e;
+    color: #8aa6cd;
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    transition: opacity 1.2s ease;
+}
+
+.loader.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loader .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #cfe6ff;
+    box-shadow:
+        0 0 12px rgba(180, 220, 255, .95),
+        0 0 34px rgba(90, 155, 255, .7);
+    animation: loader-pulse 1.7s ease-in-out infinite;
+}
+
+@keyframes loader-pulse {
+    0%, 100% { transform: scale(.6);  opacity: .4; }
+    50%      { transform: scale(1.35); opacity: 1; }
+}
+
+.fatal {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8vw;
+    background: #03060e;
+    color: #cfe0ff;
+    font-size: 15px;
+    line-height: 1.9;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .lyric { font-size: 5.6vw; }
+    .lyric.long { font-size: 4.5vw; }
+    .lyric.very-long { font-size: 3.7vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lyric.active,
+    .bottom-heart { animation: none; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="root"></div>
+
+<noscript>
+    <div class="fatal">Please enable JavaScript to see the moonlit garden.</div>
+</noscript>
+
+<!-- React -->
+<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+
+<!-- Three.js r128 (UMD build, exposes the global THREE) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+
+<!-- Optional post-processing. If any of these fail the scene still runs. -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/GammaCorrectionShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+<!-- Babel, so JSX can run straight in the browser -->
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">/* =====================================================
+   THE MOONLIT GARDEN
+   A React + Three.js night scene.
+
+   Everything you can see is generated in code:
+   sky, stars, moon, clouds, tree line, mist, the field
+   of glowing flowers, the motes. Nothing is loaded
+   from disk, so the garden always grows.
+===================================================== */
+
+const { useEffect, useRef, useState } = React;
+
+/* =====================================================
+   1. TINY HELPERS
+===================================================== */
+
+/* A small seeded random number generator, so the
+   garden looks the same every time you open it. */
+
+function mulberry32(seed) {
+    let a = seed >>> 0;
+
+    return function () {
+        a = (a + 0x6D2B79F5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+/* Draws into an offscreen canvas and hands back
+   a texture that three.js can use. */
+
+function canvasTexture(width, height, draw, srgb) {
+    const c = document.createElement("canvas");
+
+    c.width = width;
+    c.height = height;
+
+    draw(c.getContext("2d"), width, height);
+
+    const t = new THREE.CanvasTexture(c);
+
+    t.needsUpdate = true;
+
+    if (srgb) {
+        t.encoding = THREE.sRGBEncoding;
+    }
+
+    return t;
+}
+
+/* =====================================================
+   2. PROCEDURAL TEXTURES
+===================================================== */
+
+
+/* The glowing head of a flower: six petals and a
+   bright core, painted in white so the mesh colour
+   can tint it however we like. */
+
+function bloomTexture() {
+    return canvasTexture(160, 160, (ctx, w, h) => {
+        const cx = w / 2;
+        const cy = h / 2;
+
+        for (let k = 0; k < 6; k++) {
+            const a = (k / 6) * Math.PI * 2;
+            const rad = Math.max(w, h) * 0.25;
+
+            ctx.save();
+            ctx.translate(cx + Math.cos(a) * w * 0.15, cy + Math.sin(a) * h * 0.15);
+            ctx.rotate(a);
+
+            const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rad);
+
+            g.addColorStop(0.00, "rgba(255,255,255,0.98)");
+            g.addColorStop(0.30, "rgba(230,244,255,0.62)");
+            g.addColorStop(0.66, "rgba(150,205,255,0.20)");
+            g.addColorStop(1.00, "rgba(120,180,255,0)");
+
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, rad, rad * 0.58, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, w * 0.19);
+
+        core.addColorStop(0.00, "rgba(255,255,255,1)");
+        core.addColorStop(0.28, "rgba(216,240,255,0.85)");
+        core.addColorStop(1.00, "rgba(170,215,255,0)");
+
+        ctx.fillStyle = core;
+        ctx.beginPath();
+        ctx.arc(cx, cy, w * 0.19, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
+/* The moon, painted the way a photograph of a full moon looks:
+   bright highlands, the darker seas, and a surface covered in
+   craters with lit rims and shadowed floors. The circle is
+   feathered at the very edge so the disc comes out clean. */
+
+function moonTexture() {
+    return canvasTexture(640, 640, function (ctx, w, h) {
+        const cx = w / 2;
+        const cy = h / 2;
+        const r = w / 2;
+        const rnd = mulberry32(20240517);
+
+        /* --- the bright highlands --- */
+
+        const base = ctx.createRadialGradient(
+            cx - r * 0.16, cy - r * 0.18, r * 0.04, cx, cy, r
+        );
+
+        base.addColorStop(0.00, "#ffffff");
+        base.addColorStop(0.45, "#f7f8f6");
+        base.addColorStop(0.80, "#e8ecee");
+        base.addColorStop(0.95, "#d6dce1");
+        base.addColorStop(1.00, "#c4cbd3");
+
+        ctx.fillStyle = base;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        /* Nothing else is allowed outside the disc */
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.clip();
+
+        /* --- the dark seas. Each one is a clump of soft blobs,
+               so the edge looks ragged like real maria and not
+               like a neat circle. --- */
+
+        const MARIA = [
+            [-42, 0.34, 0.30, 0.55],
+            [-18, 0.16, 0.20, 0.50],
+            [ 16, 0.20, 0.15, 0.48],
+            [ 34, 0.30, 0.16, 0.44],
+            [ 58, 0.10, 0.11, 0.46],
+            [-30, 0.46, 0.13, 0.42],
+            [-38, 0.36, 0.10, 0.40],
+            [ 40, 0.44, 0.11, 0.38],
+            [ 22, 0.38, 0.08, 0.34],
+            [  4, 0.30, 0.07, 0.30],
+            [-12, 0.40, 0.08, 0.28],
+            [-62, 0.10, 0.10, 0.32],
+            [ 50, 0.46, 0.08, 0.26],
+            [-52, 0.52, 0.08, 0.24]
+        ];
+
+        MARIA.forEach(function (m) {
+            const a = m[0] * Math.PI / 180;
+            const mx = cx + Math.cos(a) * m[1] * r;
+            const my = cy + Math.sin(a) * m[1] * r;
+            const size = m[2] * r;
+            const dark = m[3];
+
+            for (let k = 0; k < 9; k++) {
+                const ox = mx + (rnd() - 0.5) * size * 1.7;
+                const oy = my + (rnd() - 0.5) * size * 1.7;
+                const rr = size * (0.45 + rnd() * 0.70);
+
+                const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, rr);
+
+                g.addColorStop(0.00, "rgba(92,100,114," + dark + ")");
+                g.addColorStop(0.55, "rgba(118,126,140," + (dark * 0.5) + ")");
+                g.addColorStop(1.00, "rgba(150,158,172,0)");
+
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(ox, oy, rr, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
+
+        /* --- craters: a shadowed floor, a bright rim on the lit
+               side, a soft dark rim on the other. --- */
+
+        function crater(x, y, rr, depth) {
+            const floor = ctx.createRadialGradient(
+                x - rr * 0.18, y - rr * 0.18, rr * 0.05, x, y, rr
+            );
+
+            floor.addColorStop(0.00, "rgba(70,78,92," + depth + ")");
+            floor.addColorStop(0.65, "rgba(124,132,146," + (depth * 0.34) + ")");
+            floor.addColorStop(1.00, "rgba(160,168,182,0)");
+
+            ctx.fillStyle = floor;
+            ctx.beginPath();
+            ctx.arc(x, y, rr, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.lineWidth = Math.max(0.7, rr * 0.20);
+            ctx.strokeStyle = "rgba(255,255,255,0.42)";
+
+            ctx.beginPath();
+            ctx.arc(x, y, rr * 0.88, Math.PI * 0.08, Math.PI * 0.92);
+            ctx.stroke();
+
+            ctx.strokeStyle = "rgba(64,72,86,0.30)";
+
+            ctx.beginPath();
+            ctx.arc(x, y, rr * 0.88, Math.PI * 1.08, Math.PI * 1.92);
+            ctx.stroke();
+        }
+
+        for (let i = 0; i < 150; i++) {
+            const a = rnd() * Math.PI * 2;
+            const d = Math.sqrt(rnd()) * r * 0.95;
+            const x = cx + Math.cos(a) * d;
+            const y = cy + Math.sin(a) * d;
+            const t = rnd();
+            const rr = r * (
+                t < 0.12 ? 0.050 + rnd() * 0.070 :
+                t < 0.45 ? 0.025 + rnd() * 0.030 :
+                           0.006 + rnd() * 0.020
+            );
+
+            crater(x, y, rr, 0.18 + rnd() * 0.30);
+        }
+
+        /* --- three craters throw out pale rays, which is what makes
+               a full moon photograph look like this. --- */
+
+        const RAY_CENTRES = [[0.62, 118, 26], [0.55, 300, 20], [0.48, 20, 16]];
+
+        RAY_CENTRES.forEach(function (rc) {
+            const a = rc[1] * Math.PI / 180;
+            const x = cx + Math.cos(a) * rc[0] * r;
+            const y = cy + Math.sin(a) * rc[0] * r;
+            const len = (rc[2] / 100) * r;
+
+            for (let k = 0; k < 16; k++) {
+                const ang = (k / 16) * Math.PI * 2 + rnd() * 0.3;
+                const spread = 0.012 + rnd() * 0.020;
+                const ex = Math.cos(ang) * len;
+                const ey = Math.sin(ang) * len;
+
+                const g = ctx.createLinearGradient(x, y, x + ex, y + ey);
+
+                g.addColorStop(0, "rgba(255,255,255,0.20)");
+                g.addColorStop(1, "rgba(255,255,255,0)");
+
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(
+                    x + Math.cos(ang - spread) * len,
+                    y + Math.sin(ang - spread) * len
+                );
+                ctx.lineTo(
+                    x + Math.cos(ang + spread) * len,
+                    y + Math.sin(ang + spread) * len
+                );
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            crater(x, y, r * 0.030, 0.42);
+        });
+
+        /* --- a little shading towards the rim, so it reads as a ball
+               rather than a flat sticker. --- */
+
+        const limb = ctx.createRadialGradient(cx, cy, r * 0.60, cx, cy, r);
+
+        limb.addColorStop(0, "rgba(0,0,0,0)");
+        limb.addColorStop(1, "rgba(58,72,98,0.30)");
+
+        ctx.fillStyle = limb;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+
+        /* --- feather the very edge so the circle is clean where the
+               transparency test cuts it. --- */
+
+        const edge = ctx.createRadialGradient(cx, cy, r * 0.962, cx, cy, r);
+
+        edge.addColorStop(0, "rgba(0,0,0,0)");
+        edge.addColorStop(1, "rgba(0,0,0,1)");
+
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.fillStyle = edge;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalCompositeOperation = "source-over";
+    });
+}
+
+/* A wide, soft glow, used for the halo around the moon */
+
+function haloTexture() {
+    return canvasTexture(256, 256, (ctx, w, h) => {
+        const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+
+        g.addColorStop(0.00, "rgba(255,255,255,0.95)");
+        g.addColorStop(0.12, "rgba(234,243,255,0.55)");
+        g.addColorStop(0.30, "rgba(178,210,255,0.24)");
+        g.addColorStop(0.60, "rgba(112,162,242,0.08)");
+        g.addColorStop(1.00, "rgba(80,120,220,0)");
+
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+    });
+}
+
+/* Night sky, painted straight onto a big sphere */
+
+function skyTexture() {
+    return canvasTexture(16, 512, (ctx, w, h) => {
+        const g = ctx.createLinearGradient(0, 0, 0, h);
+
+        g.addColorStop(0.00, "#02040c");
+        g.addColorStop(0.30, "#050d24");
+        g.addColorStop(0.55, "#0a1c3d");
+        g.addColorStop(0.74, "#123359");
+        g.addColorStop(0.86, "#1a4c78");
+        g.addColorStop(0.94, "#236089");
+        g.addColorStop(1.00, "#0b2038");
+
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+    });
+}
+
+/* Wispy moonlit cloud */
+
+function cloudTexture() {
+    return canvasTexture(512, 256, (ctx, w, h) => {
+        const rnd = mulberry32(7);
+
+        ctx.clearRect(0, 0, w, h);
+
+        for (let i = 0; i < 48; i++) {
+            const x = w * (0.08 + rnd() * 0.84);
+            const y = h * (0.34 + (rnd() - 0.5) * 0.52);
+            const rx = w * (0.05 + rnd() * 0.16);
+            const ry = h * (0.06 + rnd() * 0.20);
+            const rr = Math.max(rx, ry);
+            const a = 0.05 + rnd() * 0.13;
+
+            const g = ctx.createRadialGradient(x, y, 0, x, y, rr);
+
+            g.addColorStop(0.00, "rgba(226,240,255," + a + ")");
+            g.addColorStop(0.60, "rgba(180,212,255," + (a * 0.45) + ")");
+            g.addColorStop(1.00, "rgba(150,190,255,0)");
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(1, ry / rr);
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(0, 0, rr, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        const fade = ctx.createLinearGradient(0, 0, w, 0);
+
+        fade.addColorStop(0.00, "rgba(0,0,0,1)");
+        fade.addColorStop(0.20, "rgba(0,0,0,0)");
+        fade.addColorStop(0.80, "rgba(0,0,0,0)");
+        fade.addColorStop(1.00, "rgba(0,0,0,1)");
+
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.fillStyle = fade;
+        ctx.fillRect(0, 0, w, h);
+        ctx.globalCompositeOperation = "source-over";
+    });
+}
+
+/* A dark row of trees along the horizon */
+
+function treeLineTexture(seed, colour) {
+    return canvasTexture(2048, 256, (ctx, w, h) => {
+        const rnd = mulberry32(seed);
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = colour;
+
+        let x = -60;
+
+        while (x < w + 80) {
+            const treeW = 30 + rnd() * 110;
+            const treeH = h * (0.30 + rnd() * 0.60);
+
+            ctx.fillRect(x + treeW * 0.42, h - treeH * 0.35, treeW * 0.16, treeH * 0.35);
+
+            const lobes = 5 + Math.floor(rnd() * 4);
+
+            for (let i = 0; i < lobes; i++) {
+                const t = i / (lobes - 1);
+                const px = x + treeW * (0.14 + t * 0.72) + (rnd() - 0.5) * 10;
+                const py = h - treeH * (0.34 + Math.sin(t * Math.PI) * 0.62) + (rnd() - 0.5) * 8;
+                const pr = treeW * (0.18 + rnd() * 0.16);
+
+                ctx.beginPath();
+                ctx.arc(px, py, pr, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            if (rnd() < 0.35) {
+                const cy = h - treeH;
+
+                ctx.beginPath();
+                ctx.moveTo(x + treeW * 0.50, cy);
+                ctx.lineTo(x + treeW * 0.95, h);
+                ctx.lineTo(x + treeW * 0.05, h);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            x += treeW * (0.42 + rnd() * 0.50);
+        }
+
+        const fade = ctx.createLinearGradient(0, h * 0.80, 0, h);
+
+        fade.addColorStop(0, "rgba(0,0,0,0)");
+        fade.addColorStop(1, "rgba(0,0,0,1)");
+
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.fillStyle = fade;
+        ctx.fillRect(0, h * 0.80, w, h * 0.20);
+        ctx.globalCompositeOperation = "source-over";
+    });
+}
+
+/* Low mist lying over the flowers */
+
+function mistTexture() {
+    return canvasTexture(512, 256, (ctx, w, h) => {
+        const rnd = mulberry32(31);
+
+        ctx.clearRect(0, 0, w, h);
+
+        for (let i = 0; i < 70; i++) {
+            const x = w * rnd();
+            const y = h * (0.30 + rnd() * 0.55);
+            const rx = w * (0.04 + rnd() * 0.14);
+            const ry = h * (0.05 + rnd() * 0.22);
+            const rr = Math.max(rx, ry);
+
+            const g = ctx.createRadialGradient(x, y, 0, x, y, rr);
+
+            g.addColorStop(0.00, "rgba(172,206,255,0.10)");
+            g.addColorStop(1.00, "rgba(140,180,255,0)");
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(1, ry / rr);
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(0, 0, rr, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        const fade = ctx.createLinearGradient(0, 0, 0, h);
+
+        fade.addColorStop(0.00, "rgba(0,0,0,1)");
+        fade.addColorStop(0.45, "rgba(0,0,0,0)");
+        fade.addColorStop(0.75, "rgba(0,0,0,0)");
+        fade.addColorStop(1.00, "rgba(0,0,0,1)");
+
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.fillStyle = fade;
+        ctx.fillRect(0, 0, w, h);
+        ctx.globalCompositeOperation = "source-over";
+    });
+}
+/* =====================================================
+   3. FLOWER GEOMETRY
+   One plant = a thin stem plus a head made of three
+   crossed quads, so the bloom still glows when you
+   look at it from any direction.
+   The stem and the head are separate geometries so
+   they can use different materials.
+===================================================== */
+
+function buildFlowerParts(stemH, headS) {
+    const stem = { pos: [], nrm: [], uv: [], idx: [] };
+    const head = { pos: [], nrm: [], uv: [], idx: [] };
+
+    function quad(target, a, b, c, d, n) {
+        const base = target.pos.length / 3;
+        const pts = [a, b, c, d];
+
+        for (let i = 0; i < 4; i++) {
+            target.pos.push(pts[i].x, pts[i].y, pts[i].z);
+            target.nrm.push(n.x, n.y, n.z);
+        }
+
+        target.uv.push(0, 0, 1, 0, 1, 1, 0, 1);
+        target.idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
+    }
+
+    const V = (x, y, z) => new THREE.Vector3(x, y, z);
+
+    /* Stem: two crossed thin quads so it never
+       disappears completely when edge on. */
+
+    const wBase = 0.016;
+    const wTop = 0.010;
+
+    for (let k = 0; k < 2; k++) {
+        const ax = k === 0 ? 1 : 0;
+        const az = k === 0 ? 0 : 1;
+
+        quad(
+            stem,
+            V(-wBase * ax, 0, -wBase * az),
+            V( wBase * ax, 0,  wBase * az),
+            V( wTop * ax, stemH,  wTop * az),
+            V(-wTop * ax, stemH, -wTop * az),
+            V(az, 0, ax)
+        );
+    }
+
+    /* Head: three crossed quads */
+
+    const y0 = stemH - headS * 0.55;
+    const y1 = stemH + headS;
+
+    for (let k = 0; k < 3; k++) {
+        const ang = (k / 3) * Math.PI;
+        const dx = Math.cos(ang) * headS;
+        const dz = Math.sin(ang) * headS;
+
+        quad(
+            head,
+            V(-dx, y0, -dz),
+            V( dx, y0,  dz),
+            V( dx, y1,  dz),
+            V(-dx, y1, -dz),
+            V(Math.sin(ang), 0, -Math.cos(ang))
+        );
+    }
+
+    function finish(part) {
+        const g = new THREE.BufferGeometry();
+
+        g.setAttribute("position", new THREE.Float32BufferAttribute(part.pos, 3));
+        g.setAttribute("normal", new THREE.Float32BufferAttribute(part.nrm, 3));
+        g.setAttribute("uv", new THREE.Float32BufferAttribute(part.uv, 2));
+        g.setIndex(part.idx);
+        g.computeBoundingSphere();
+
+        return g;
+    }
+
+    return { stem: finish(stem), head: finish(head) };
+}
+
+/* =====================================================
+   4. WIND
+   A little code injected into the stock three.js
+   shader. Every plant bends further the higher up you
+   go, the way a real stem leans over, and each plant
+   gets its own timing from where it is planted.
+===================================================== */
+
+function addWind(material, shared) {
+    material.onBeforeCompile = function (shader) {
+        shader.uniforms.uTime = shared.uTime;
+        shader.uniforms.uWind = shared.uWind;
+
+        shader.vertexShader =
+            "uniform float uTime;\nuniform float uWind;\n" + shader.vertexShader;
+
+        shader.vertexShader = shader.vertexShader.replace(
+            "#include <begin_vertex>",
+            [
+                "#include <begin_vertex>",
+                "#ifdef USE_INSTANCING",
+                "    vec3 iw = instanceMatrix[3].xyz;",
+                "    float ph = iw.x * 0.31 + iw.z * 0.44;",
+                "    float hN = clamp(transformed.y, 0.0, 1.9);",
+                "    float bend = pow(hN, 1.4);",
+                "    float gust = 0.55 + 0.45 * sin(uTime * 0.19 + iw.z * 0.035);",
+                "    float s1 = sin(uTime * 0.52 + ph);",
+                "    float s2 = sin(uTime * 0.97 + ph * 1.73);",
+                "    float s3 = sin(uTime * 0.23 + ph * 0.61);",
+                "    float amp = uWind * gust;",
+                "    transformed.x += (s1 * 0.62 + s3 * 0.55) * bend * amp;",
+                "    transformed.z += (s1 * 0.34 - s2 * 0.30) * bend * amp;",
+                "    transformed.y -= (abs(s1) * 0.14 + abs(s2) * 0.06) * bend * amp * amp;",
+                "#endif"
+            ].join("\n")
+        );
+    };
+}
+
+/* =====================================================
+   5. SHARED POINT SHADER
+   Stars, the distant carpet of lights and the drifting
+   motes all use this, only the motion differs.
+===================================================== */
+
+function pointsMaterial(uniforms, vertexBody) {
+    return new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        transparent: true,
+        depthWrite: false,
+        fog: false,
+        blending: THREE.AdditiveBlending,
+
+        vertexShader: [
+            "attribute vec3 aColor;",
+            "attribute float aPhase;",
+            "attribute float aSize;",
+            "uniform float uTime;",
+            "uniform float uPR;",
+            "varying vec3 vColor;",
+            "varying float vTw;",
+            "void main() {",
+            "    vColor = aColor;",
+            "    vTw = 0.40 + 0.60 * (0.5 + 0.5 * sin(uTime * 0.55 + aPhase));",
+            "    vec3 p = position;",
+            vertexBody,
+            "    vec4 mv = modelViewMatrix * vec4(p, 1.0);",
+            "    gl_PointSize = aSize * uPR * (240.0 / max(-mv.z, 1.0));",
+            "    gl_Position = projectionMatrix * mv;",
+            "}"
+        ].join("\n"),
+
+        fragmentShader: [
+            "varying vec3 vColor;",
+            "varying float vTw;",
+            "void main() {",
+            "    vec2 c = gl_PointCoord - 0.5;",
+            "    float d = dot(c, c);",
+            "    float a = smoothstep(0.25, 0.0, d);",
+            "    a = a * a;",
+            "    gl_FragColor = vec4(vColor * vTw, a * vTw);",
+            "}"
+        ].join("\n")
+    });
+}
+/* =====================================================
+   6. BUILDING THE GARDEN
+===================================================== */
+
+function createGarden(canvas) {
+    if (!canvas || !window.THREE) return null;
+
+    const W = Math.max(1, canvas.clientWidth || window.innerWidth);
+    const H = Math.max(1, canvas.clientHeight || window.innerHeight);
+
+    /* Bloom is a bonus. If the post processing files did
+       not load we simply draw straight to the canvas. */
+
+    const canBloom = !!(
+        THREE.EffectComposer &&
+        THREE.RenderPass &&
+        THREE.UnrealBloomPass &&
+        THREE.ShaderPass &&
+        THREE.GammaCorrectionShader &&
+        THREE.LuminosityHighPassShader &&
+        THREE.CopyShader
+    );
+
+    const renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        antialias: true,
+        alpha: false,
+        powerPreference: "high-performance"
+    });
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    renderer.setSize(W, H, false);
+    renderer.setClearColor(0x03060e, 1);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+
+    /* When the composer is in use the last pass turns
+       linear light into screen colour for us. */
+
+    renderer.outputEncoding = canBloom ? THREE.LinearEncoding : THREE.sRGBEncoding;
+
+    const SRGB = !canBloom;
+
+    const scene = new THREE.Scene();
+
+    scene.fog = new THREE.FogExp2(0x0a1b34, 0.0062);
+
+    const camera = new THREE.PerspectiveCamera(52, W / H, 0.1, 900);
+
+    camera.position.set(0, 2.9, 15);
+    camera.lookAt(0, 4.6, -40);
+
+    const shared = {
+        uTime: { value: 0 },
+        uWind: { value: 0.15 }
+    };
+
+    const disposables = [];
+
+    function keep(x) {
+        disposables.push(x);
+        return x;
+    }
+
+    /* -----------------------------------------------------
+       The sky, wrapped around everything
+    ----------------------------------------------------- */
+
+    const sky = new THREE.Mesh(
+        keep(new THREE.SphereGeometry(340, 32, 20)),
+        keep(new THREE.MeshBasicMaterial({
+            map: keep(skyTexture(SRGB)),
+            side: THREE.BackSide,
+            depthWrite: false,
+            fog: false
+        }))
+    );
+
+    sky.renderOrder = -20;
+    scene.add(sky);
+
+    /* -----------------------------------------------------
+       Stars, each with its own slow twinkle
+    ----------------------------------------------------- */
+
+    const starUniforms = {
+        uTime: shared.uTime,
+        uPR: { value: renderer.getPixelRatio() }
+    };
+
+    const STAR_COUNT = 1400;
+    const starPos = new Float32Array(STAR_COUNT * 3);
+    const starCol = new Float32Array(STAR_COUNT * 3);
+    const starPh = new Float32Array(STAR_COUNT);
+    const starSz = new Float32Array(STAR_COUNT);
+    const starRnd = mulberry32(2024);
+    const tint = new THREE.Color();
+
+    for (let i = 0; i < STAR_COUNT; i++) {
+        const u = starRnd() * 2 - 1;
+        const a = starRnd() * Math.PI * 2;
+        const r = 190 + starRnd() * 70;
+        const s = Math.sqrt(1 - u * u);
+        const y = Math.abs(u) * 0.92 + 0.05;
+
+        starPos[i * 3] = Math.cos(a) * s * r;
+        starPos[i * 3 + 1] = y * r * 0.85 + 10;
+        starPos[i * 3 + 2] = Math.sin(a) * s * r;
+
+        tint.setHSL(0.55 + starRnd() * 0.10, 0.30, 0.76 + starRnd() * 0.22);
+
+        starCol[i * 3] = tint.r;
+        starCol[i * 3 + 1] = tint.g;
+        starCol[i * 3 + 2] = tint.b;
+
+        starPh[i] = starRnd() * Math.PI * 2;
+        starSz[i] = 0.7 + Math.pow(starRnd(), 2.4) * 5.4;
+    }
+
+    const starGeo = new THREE.BufferGeometry();
+
+    starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
+    starGeo.setAttribute("aColor", new THREE.BufferAttribute(starCol, 3));
+    starGeo.setAttribute("aPhase", new THREE.BufferAttribute(starPh, 1));
+    starGeo.setAttribute("aSize", new THREE.BufferAttribute(starSz, 1));
+
+    const stars = new THREE.Points(
+        keep(starGeo),
+        keep(pointsMaterial(starUniforms, "    p.x += sin(uTime * 0.02 + aPhase) * 0.4;"))
+    );
+
+    stars.frustumCulled = false;
+    scene.add(stars);
+
+    /* -----------------------------------------------------
+       The moon, with a halo and a wide corona
+    ----------------------------------------------------- */
+
+    const moonGroup = new THREE.Group();
+
+    moonGroup.position.set(3.4, 15.8, -54);
+    scene.add(moonGroup);
+
+    /* The moon is a flat disc that always turns to face the camera.
+
+       Painting a circle onto a sphere does not work: three.js spreads
+       an equirectangular picture right around the whole sphere, so only
+       half of it is ever seen and the craters get stretched sideways
+       into smears. A flat disc shows the picture exactly as painted. */
+
+    const MOON_R = 5.4;
+
+    const moon = new THREE.Mesh(
+        keep(new THREE.PlaneGeometry(MOON_R * 2, MOON_R * 2)),
+        keep(new THREE.MeshBasicMaterial({
+            map: keep(moonTexture(SRGB)),
+            color: 0xffffff,
+            transparent: false,
+            alphaTest: 0.5,
+            depthWrite: true,
+            fog: false
+        }))
+    );
+
+    moonGroup.add(moon);
+
+    /* The moon and its glow all turn together */
+    const billboards = [moon];
+
+    function glowPlane(size, colour, opacity, offsetZ) {
+        const m = new THREE.Mesh(
+            keep(new THREE.PlaneGeometry(1, 1)),
+            keep(new THREE.MeshBasicMaterial({
+                map: keep(haloTexture(SRGB)),
+                color: colour,
+                transparent: true,
+                opacity: opacity,
+                depthWrite: false,
+                fog: false,
+                blending: THREE.AdditiveBlending
+            }))
+        );
+
+        m.scale.set(size, size, 1);
+        m.position.z = offsetZ;
+        m.renderOrder = -5;
+
+        return m;
+    }
+
+    /* Both glows sit BEHIND the moon. The moon is a solid disc, so it
+       cuts the middle out of them and all that is left is a thin ring
+       of light around a clean circle. A big glow in front is exactly
+       what turns a moon into a shapeless light ball, so there is
+       only a whisper of one here. */
+
+    const wideGlow = glowPlane(76, 0x4f7cff, 0.20, -2.0);
+    const edgeGlow = glowPlane(17, 0xa8c8ff, 0.26, -0.8);
+
+    moonGroup.add(wideGlow);
+    moonGroup.add(edgeGlow);
+
+    billboards.push(wideGlow, edgeGlow);
+
+    /* -----------------------------------------------------
+       Clouds, drifting slowly across the moon
+    ----------------------------------------------------- */
+
+    const clouds = [];
+    const cloudTex = keep(cloudTexture());
+
+    for (let i = 0; i < 7; i++) {
+        const front = i < 2;
+        const mat = new THREE.MeshBasicMaterial({
+            map: cloudTex,
+            color: 0xcfe0ff,
+            transparent: true,
+            opacity: front ? 0.30 : 0.55,
+            depthWrite: false,
+            fog: false
+        });
+
+        keep(mat);
+
+        const mesh = new THREE.Mesh(keep(new THREE.PlaneGeometry(1, 1)), mat);
+        const scale = 44 + Math.random() * 62;
+
+        mesh.scale.set(scale, scale * 0.40, 1);
+        mesh.position.set(
+            (Math.random() - 0.5) * 170,
+            8 + Math.random() * 15,
+            front ? -34 - Math.random() * 12 : -66 - Math.random() * 34
+        );
+        mesh.renderOrder = -3;
+
+        scene.add(mesh);
+        clouds.push({ mesh: mesh, speed: 0.26 + Math.random() * 0.42 });
+    }
+
+    /* -----------------------------------------------------
+       The tree line on the horizon, in two depths
+    ----------------------------------------------------- */
+
+    function treeRow(z, width, height, y, seed, colour) {
+        const m = new THREE.Mesh(
+            keep(new THREE.PlaneGeometry(width, height)),
+            keep(new THREE.MeshBasicMaterial({
+                map: keep(treeLineTexture(seed, colour)),
+                transparent: true,
+                depthWrite: false
+            }))
+        );
+
+        m.position.set(0, y, z);
+        scene.add(m);
+    }
+
+    treeRow(-165, 460, 30, 9.0, 11, "#0a1730");
+    treeRow(-118, 340, 21, 6.3, 27, "#050e1f");
+
+    /* -----------------------------------------------------
+       The dark ground, and the light that falls on it
+    ----------------------------------------------------- */
+
+    const ground = new THREE.Mesh(
+        keep(new THREE.PlaneGeometry(900, 900)),
+        keep(new THREE.MeshLambertMaterial({ color: 0x0a1626 }))
+    );
+
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.set(0, -0.02, -220);
+    scene.add(ground);
+
+    scene.add(new THREE.HemisphereLight(0x2f5ea8, 0x061020, 0.55));
+    scene.add(new THREE.AmbientLight(0x14284a, 0.55));
+
+    const moonLight = new THREE.DirectionalLight(0xcfe2ff, 0.9);
+
+    moonLight.position.set(11, 26, -34);
+    scene.add(moonLight);
+    /* -----------------------------------------------------
+       THE FLOWER FIELD
+       Two thousand four hundred plants. The stems are
+       drawn in one go, the glowing heads in four tints,
+       and they all bend in the same gentle breeze.
+    ----------------------------------------------------- */
+
+    const FIELD = 2400;
+    const STEM_H = 1.0;
+    const HEAD_S = 0.30;
+
+    const parts = buildFlowerParts(STEM_H, HEAD_S);
+
+    keep(parts.stem);
+    keep(parts.head);
+
+    const TINTS = [
+        { hex: 0x63d8ff, opacity: 0.95, share: 0.34 },
+        { hex: 0x5f9bff, opacity: 0.92, share: 0.30 },
+        { hex: 0xa98cff, opacity: 0.85, share: 0.16 },
+        { hex: 0xdff0ff, opacity: 0.78, share: 0.20 }
+    ];
+
+    const bloomMap = keep(bloomTexture());
+
+    const stemMat = keep(new THREE.MeshLambertMaterial({
+        color: 0x16323a,
+        side: THREE.DoubleSide
+    }));
+
+    addWind(stemMat, shared);
+
+    const stems = new THREE.InstancedMesh(parts.stem, stemMat, FIELD);
+    keep(stems);
+    scene.add(stems);
+
+    const headMats = TINTS.map(function (t) {
+        const m = new THREE.MeshBasicMaterial({
+            map: bloomMap,
+            color: t.hex,
+            transparent: true,
+            opacity: t.opacity,
+            depthWrite: false,
+            side: THREE.DoubleSide,
+            fog: false,
+            blending: THREE.AdditiveBlending
+        });
+
+        addWind(m, shared);
+        keep(m);
+
+        return m;
+    });
+
+    const groups = TINTS.map(function () { return []; });
+    const stemMats = [];
+
+    const flowerRnd = mulberry32(4242);
+    const mtx = new THREE.Matrix4();
+    const quat = new THREE.Quaternion();
+    const eul = new THREE.Euler();
+    const p = new THREE.Vector3();
+    const sc = new THREE.Vector3();
+
+    for (let i = 0; i < FIELD; i++) {
+        const t = Math.pow(flowerRnd(), 0.80);
+        const z = 8 - t * 128;
+        const depth = Math.max(-z, 0);
+        const halfW = 0.92 * depth + 10;
+        const x = (flowerRnd() * 2 - 1) * halfW;
+        const h = 0.62 + Math.pow(flowerRnd(), 1.3) * 1.9;
+
+        eul.set(
+            (flowerRnd() - 0.5) * 0.34,
+            flowerRnd() * Math.PI * 2,
+            (flowerRnd() - 0.5) * 0.34
+        );
+
+        quat.setFromEuler(eul);
+        p.set(x, 0, z);
+        sc.set(h * (0.9 + flowerRnd() * 0.25), h, h * (0.9 + flowerRnd() * 0.25));
+
+        mtx.compose(p, quat, sc);
+
+        stemMats.push(mtx.clone());
+
+        let pick = flowerRnd();
+        let acc = 0;
+        let gi = TINTS.length - 1;
+
+        for (let k = 0; k < TINTS.length; k++) {
+            acc += TINTS[k].share;
+            if (pick <= acc) { gi = k; break; }
+        }
+
+        groups[gi].push(mtx.clone());
+    }
+
+    function fillInstances(mesh, list) {
+        for (let i = 0; i < list.length; i++) {
+            mesh.setMatrixAt(i, list[i]);
+        }
+
+        mesh.count = list.length;
+        mesh.instanceMatrix.needsUpdate = true;
+
+        if (mesh.computeBoundingSphere) mesh.computeBoundingSphere();
+
+        mesh.frustumCulled = false;
+    }
+
+    fillInstances(stems, stemMats);
+
+    TINTS.forEach(function (t, k) {
+        const mesh = new THREE.InstancedMesh(parts.head, headMats[k], Math.max(1, groups[k].length));
+
+        keep(mesh);
+        fillInstances(mesh, groups[k]);
+        scene.add(mesh);
+    });
+
+    /* -----------------------------------------------------
+       THE DISTANT CARPET OF LIGHTS
+       Small glowing dots that fill the field in the
+       distance, so the horizon looks like a sea of stars.
+    ----------------------------------------------------- */
+
+    const carpetUniforms = {
+        uTime: shared.uTime,
+        uPR: { value: renderer.getPixelRatio() }
+    };
+
+    const CARPET = 1800;
+    const cPos = new Float32Array(CARPET * 3);
+    const cCol = new Float32Array(CARPET * 3);
+    const cPh = new Float32Array(CARPET);
+    const cSz = new Float32Array(CARPET);
+    const carpetRnd = mulberry32(777);
+    const CARPET_TINTS = [0x5fd0ff, 0x6f9cff, 0x9f86ff, 0xcfe8ff];
+
+    for (let i = 0; i < CARPET; i++) {
+        const z = -26 - Math.pow(carpetRnd(), 0.7) * 150;
+        const depth = -z;
+        const x = (carpetRnd() * 2 - 1) * (0.95 * depth + 12);
+
+        cPos[i * 3] = x;
+        cPos[i * 3 + 1] = 0.25 + carpetRnd() * 1.5;
+        cPos[i * 3 + 2] = z;
+
+        tint.setHex(CARPET_TINTS[Math.floor(carpetRnd() * CARPET_TINTS.length)]);
+        tint.multiplyScalar(0.30 + carpetRnd() * 0.45);
+
+        cCol[i * 3] = tint.r;
+        cCol[i * 3 + 1] = tint.g;
+        cCol[i * 3 + 2] = tint.b;
+
+        cPh[i] = carpetRnd() * Math.PI * 2;
+        cSz[i] = 0.4 + Math.pow(carpetRnd(), 2.0) * 1.8;
+    }
+
+    const carpetGeo = new THREE.BufferGeometry();
+
+    carpetGeo.setAttribute("position", new THREE.BufferAttribute(cPos, 3));
+    carpetGeo.setAttribute("aColor", new THREE.BufferAttribute(cCol, 3));
+    carpetGeo.setAttribute("aPhase", new THREE.BufferAttribute(cPh, 1));
+    carpetGeo.setAttribute("aSize", new THREE.BufferAttribute(cSz, 1));
+
+    const carpet = new THREE.Points(
+        keep(carpetGeo),
+        keep(pointsMaterial(carpetUniforms, [
+            "    p.x += sin(uTime * 0.30 + aPhase) * 0.6;",
+            "    p.z += cos(uTime * 0.24 + aPhase * 1.4) * 0.6;",
+            "    p.y += sin(uTime * 0.40 + aPhase * 0.8) * 0.22;"
+        ].join("\n")))
+    );
+
+    carpet.frustumCulled = false;
+    scene.add(carpet);
+
+    /* -----------------------------------------------------
+       MOTES
+       Slow bright specks of night air, floating up and
+       down in front of the flowers.
+    ----------------------------------------------------- */
+
+    const moteUniforms = {
+        uTime: shared.uTime,
+        uPR: { value: renderer.getPixelRatio() }
+    };
+
+    const MOTES = 220;
+    const mPos = new Float32Array(MOTES * 3);
+    const mCol = new Float32Array(MOTES * 3);
+    const mPh = new Float32Array(MOTES);
+    const mSz = new Float32Array(MOTES);
+    const moteRnd = mulberry32(5150);
+    const MOTE_TINTS = [0xbfe6ff, 0x9fd0ff, 0xd8ecff, 0x8fb8ff];
+
+    for (let i = 0; i < MOTES; i++) {
+        mPos[i * 3] = (moteRnd() * 2 - 1) * 34;
+        mPos[i * 3 + 1] = moteRnd() * 13;
+        mPos[i * 3 + 2] = -2 - moteRnd() * 58;
+
+        tint.setHex(MOTE_TINTS[Math.floor(moteRnd() * MOTE_TINTS.length)]);
+        tint.multiplyScalar(0.45 + moteRnd() * 0.5);
+
+        mCol[i * 3] = tint.r;
+        mCol[i * 3 + 1] = tint.g;
+        mCol[i * 3 + 2] = tint.b;
+
+        mPh[i] = moteRnd() * Math.PI * 2;
+        mSz[i] = 0.25 + Math.pow(moteRnd(), 1.8) * 0.8;
+    }
+
+    const moteGeo = new THREE.BufferGeometry();
+
+    moteGeo.setAttribute("position", new THREE.BufferAttribute(mPos, 3));
+    moteGeo.setAttribute("aColor", new THREE.BufferAttribute(mCol, 3));
+    moteGeo.setAttribute("aPhase", new THREE.BufferAttribute(mPh, 1));
+    moteGeo.setAttribute("aSize", new THREE.BufferAttribute(mSz, 1));
+
+    const motes = new THREE.Points(
+        keep(moteGeo),
+        keep(pointsMaterial(moteUniforms, [
+            "    p.x += sin(uTime * 0.20 + aPhase) * 3.0 + sin(uTime * 0.07 + aPhase * 2.1) * 1.8;",
+            "    p.z += cos(uTime * 0.16 + aPhase * 1.3) * 2.6;",
+            "    p.y = mod(position.y + uTime * 0.40 + aPhase * 1.7, 13.0) + 0.6;"
+        ].join("\n")))
+    );
+
+    motes.frustumCulled = false;
+    scene.add(motes);
+
+    /* -----------------------------------------------------
+       MIST, lying low over the field in three layers
+    ----------------------------------------------------- */
+
+    const mists = [];
+
+    [
+        { z: -46, y: 2.2, w: 220, h: 16, op: 0.55, speed: 0.020 },
+        { z: -88, y: 3.4, w: 340, h: 24, op: 0.45, speed: 0.013 },
+        { z: -140, y: 5.0, w: 460, h: 32, op: 0.38, speed: 0.008 }
+    ].forEach(function (cfg) {
+        const tex = keep(mistTexture());
+
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.repeat.set(2, 1);
+
+        const m = new THREE.Mesh(
+            keep(new THREE.PlaneGeometry(cfg.w, cfg.h)),
+            keep(new THREE.MeshBasicMaterial({
+                map: tex,
+                color: 0x9dc4f5,
+                transparent: true,
+                opacity: cfg.op,
+                depthWrite: false,
+                fog: false,
+                blending: THREE.AdditiveBlending
+            }))
+        );
+
+        m.position.set(0, cfg.y, cfg.z);
+        scene.add(m);
+
+        mists.push({ tex: tex, speed: cfg.speed });
+    });
+    /* -----------------------------------------------------
+       BLOOM
+       Makes every glowing thing bleed a little light
+       into the night air around it.
+    ----------------------------------------------------- */
+
+    let composer = null;
+    let bloom = null;
+
+    if (canBloom) {
+        try {
+            composer = new THREE.EffectComposer(renderer);
+            composer.addPass(new THREE.RenderPass(scene, camera));
+
+            bloom = new THREE.UnrealBloomPass(
+                new THREE.Vector2(W, H), 0.46, 0.72, 0.55
+            );
+
+            composer.addPass(bloom);
+            composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));
+            composer.setSize(W, H);
+        } catch (err) {
+            composer = null;
+            bloom = null;
+        }
+    }
+
+    /* -----------------------------------------------------
+       MOVING THE VIEW
+       The mouse tilts the camera gently. The arrow keys
+       let you take over and move the view yourself.
+    ----------------------------------------------------- */
+
+    const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+
+    function onMove(e) {
+        const p = e.touches && e.touches.length ? e.touches[0] : e;
+
+        pointer.tx = (p.clientX / window.innerWidth) * 2 - 1;
+        pointer.ty = (p.clientY / window.innerHeight) * 2 - 1;
+    }
+
+    function onOut() {
+        pointer.tx = 0;
+        pointer.ty = 0;
+    }
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerleave", onOut, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("blur", onOut);
+
+    /* -----------------------------------------------------
+       THE ARROW KEYS
+       Hold one and the view keeps sliding that way, so you
+       can look right around the garden and not just nudge it.
+    ----------------------------------------------------- */
+
+    const held = { left: false, right: false, up: false, down: false };
+
+    const PAN_SPEED = 12.0;
+    const PAN_LIMIT_X = 30.0;
+    const PAN_LIMIT_Y = 16.0;
+
+    /* want = where the keys have asked to look
+       have = where the camera has actually got to */
+
+    const want = { x: 0, y: 0 };
+    const have = { x: 0, y: 0 };
+
+    function hold(e, down) {
+        let used = true;
+
+        switch (e.key) {
+            case "ArrowLeft":  held.left = down;  break;
+            case "ArrowRight": held.right = down; break;
+            case "ArrowUp":    held.up = down;    break;
+            case "ArrowDown":  held.down = down;  break;
+            default: used = false;
+        }
+
+        if (used && e.preventDefault) e.preventDefault();
+    }
+
+    function onKeyDown(e) { hold(e, true); }
+    function onKeyUp(e) { hold(e, false); }
+
+    function onKeyRelease() {
+        held.left = false;
+        held.right = false;
+        held.up = false;
+        held.down = false;
+    }
+
+    window.addEventListener("keydown", onKeyDown, { passive: false });
+    window.addEventListener("keyup", onKeyUp, { passive: false });
+    window.addEventListener("blur", onKeyRelease);
+
+    /* -----------------------------------------------------
+       THE LOOP
+       Everything here is deliberately slow and calm.
+    ----------------------------------------------------- */
+
+    /* -----------------------------------------------------
+       THE CAMERA SHOTS
+       Six slow shots. Each one drifts gently from where it
+       starts to where it ends, then dissolves into the next
+       one, so the picture never cuts and never stops.
+
+       p = camera position, l = the point it looks at.
+    ----------------------------------------------------- */
+
+    const SHOTS = [
+        {
+            hold: 17,
+            a: { p: [  0.0, 2.90,  15.0], l: [  0.5, 4.60, -40] },
+            b: { p: [  3.6, 3.50,  12.0], l: [ -1.6, 5.70, -46] }
+        },
+        {
+            hold: 17,
+            a: { p: [ -8.5, 1.35,   6.0], l: [ -2.0, 6.10, -34] },
+            b: { p: [ -3.4, 1.80,   9.0], l: [  1.2, 5.20, -40] }
+        },
+        {
+            hold: 17,
+            a: { p: [  6.0, 2.10,   2.0], l: [  2.0, 6.40, -30] },
+            b: { p: [  9.2, 1.30,  -4.0], l: [ -1.2, 4.60, -38] }
+        },
+        {
+            hold: 17,
+            a: { p: [  0.0, 1.10,  -7.0], l: [  0.0, 6.20, -62] },
+            b: { p: [ -2.2, 2.50,  -2.0], l: [  0.9, 4.80, -50] }
+        },
+        {
+            hold: 17,
+            a: { p: [ -6.0, 4.80,   4.0], l: [  1.0, 2.40, -34] },
+            b: { p: [ -1.0, 5.60,   8.0], l: [  0.2, 3.60, -44] }
+        },
+        {
+            hold: 17,
+            a: { p: [  4.0, 3.00,  10.0], l: [  0.0, 5.20, -44] },
+            b: { p: [  0.0, 2.90,  15.0], l: [  0.5, 4.60, -40] }
+        }
+    ];
+
+    const SHOT_TOTAL = SHOTS.reduce(function (sum, s) {
+        return sum + s.hold;
+    }, 0);
+
+    const DISSOLVE = 6.0;
+
+    function mix(a, b, f) {
+        return a + (b - a) * f;
+    }
+
+    function smooth(u) {
+        return u * u * (3 - 2 * u);
+    }
+
+    let raf = 0;
+    let last = 0;
+    let clock = 0;
+    let running = false;
+
+    function frame(now) {
+        raf = requestAnimationFrame(frame);
+
+        if (!last) last = now;
+
+        let dt = (now - last) / 1000;
+
+        last = now;
+
+        if (dt > 0.1) dt = 0.1;
+
+        clock += dt;
+
+        shared.uTime.value = clock;
+        shared.uWind.value = 0.145 + Math.sin(clock * 0.11) * 0.05;
+
+        for (let i = 0; i < clouds.length; i++) {
+            const c = clouds[i];
+
+            c.mesh.position.x += c.speed * dt;
+
+            if (c.mesh.position.x > 150) c.mesh.position.x = -150;
+        }
+
+        for (let i = 0; i < mists.length; i++) {
+            const m = mists[i];
+
+            m.tex.offset.x = (m.tex.offset.x + m.speed * dt) % 1;
+        }
+
+        pointer.x += (pointer.tx - pointer.x) * 0.035;
+        pointer.y += (pointer.ty - pointer.y) * 0.035;
+
+        /* The arrow keys slide the view while they are held,
+           and it eases to a stop when you let go. */
+
+        if (held.left)  want.x -= PAN_SPEED * dt;
+        if (held.right) want.x += PAN_SPEED * dt;
+        if (held.up)    want.y += PAN_SPEED * dt * 0.62;
+        if (held.down)  want.y -= PAN_SPEED * dt * 0.62;
+
+        want.x = Math.max(-PAN_LIMIT_X, Math.min(PAN_LIMIT_X, want.x));
+        want.y = Math.max(-PAN_LIMIT_Y, Math.min(PAN_LIMIT_Y, want.y));
+
+        have.x += (want.x - have.x) * 0.10;
+        have.y += (want.y - have.y) * 0.10;
+
+        /* Which shot are we in, and how far through it */
+
+        let shotT = clock % SHOT_TOTAL;
+        let si = 0;
+
+        while (si < SHOTS.length - 1 && shotT >= SHOTS[si].hold) {
+            shotT -= SHOTS[si].hold;
+            si++;
+        }
+
+        const shot = SHOTS[si];
+        const into = SHOTS[(si + 1) % SHOTS.length].a;
+
+        const run = Math.min(shotT, shot.hold - DISSOLVE);
+        const ease = smooth(Math.max(0, Math.min(1, run / shot.hold)));
+
+        let px = mix(shot.a.p[0], shot.b.p[0], ease);
+        let py = mix(shot.a.p[1], shot.b.p[1], ease);
+        let pz = mix(shot.a.p[2], shot.b.p[2], ease);
+        let lx = mix(shot.a.l[0], shot.b.l[0], ease);
+        let ly = mix(shot.a.l[1], shot.b.l[1], ease);
+        let lz = mix(shot.a.l[2], shot.b.l[2], ease);
+
+        /* Dissolve smoothly into the head of the next shot */
+
+        if (shotT > shot.hold - DISSOLVE) {
+            const k = smooth((shotT - (shot.hold - DISSOLVE)) / DISSOLVE);
+
+            px = mix(px, into.p[0], k);
+            py = mix(py, into.p[1], k);
+            pz = mix(pz, into.p[2], k);
+            lx = mix(lx, into.l[0], k);
+            ly = mix(ly, into.l[1], k);
+            lz = mix(lz, into.l[2], k);
+        }
+
+        /* A whisper of hand held movement on top of it all */
+
+        px += Math.sin(clock * 0.21) * 0.30;
+        py += Math.sin(clock * 0.17 + 1.3) * 0.16;
+        pz += Math.sin(clock * 0.13 + 2.1) * 0.42;
+
+        camera.position.set(
+            px + pointer.x * 2.0 + have.x * 0.40,
+            py - pointer.y * 1.0 + have.y * 0.34,
+            pz
+        );
+
+        camera.lookAt(
+            lx + pointer.x * 0.8 + have.x * 0.95,
+            ly - pointer.y * 0.4 + have.y * 0.80,
+            lz
+        );
+
+        moonGroup.position.y = 15.8 + Math.sin(clock * 0.05) * 0.35;
+
+        for (let i = 0; i < billboards.length; i++) {
+            billboards[i].quaternion.copy(camera.quaternion);
+        }
+
+        stars.rotation.y = clock * 0.0016;
+
+        if (composer) {
+            composer.render();
+        } else {
+            renderer.render(scene, camera);
+        }
+    }
+
+    function resize() {
+        const w = Math.max(1, canvas.clientWidth || window.innerWidth);
+        const h = Math.max(1, canvas.clientHeight || window.innerHeight);
+
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+        renderer.setSize(w, h, false);
+
+        if (composer) composer.setSize(w, h);
+
+        const pr = renderer.getPixelRatio();
+
+        starUniforms.uPR.value = pr;
+        carpetUniforms.uPR.value = pr;
+        moteUniforms.uPR.value = pr;
+    }
+
+    window.addEventListener("resize", resize);
+
+    function start() {
+        if (running) return;
+
+        running = true;
+        last = 0;
+        raf = requestAnimationFrame(frame);
+    }
+
+    function dispose() {
+        running = false;
+
+        if (raf) cancelAnimationFrame(raf);
+
+        window.removeEventListener("resize", resize);
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerleave", onOut);
+        window.removeEventListener("touchmove", onMove);
+        window.removeEventListener("blur", onOut);
+        window.removeEventListener("keydown", onKeyDown);
+        window.removeEventListener("keyup", onKeyUp);
+        window.removeEventListener("blur", onKeyRelease);
+
+        for (let i = 0; i < disposables.length; i++) {
+            const d = disposables[i];
+
+            if (d && typeof d.dispose === "function") d.dispose();
+        }
+
+        if (composer && typeof composer.dispose === "function") composer.dispose();
+
+        renderer.dispose();
+    }
+
+    return { start: start, dispose: dispose, resize: resize };
+}
+/* =====================================================
+   7. THE WORDS
+   The lyric lines and their timing are kept exactly
+   the same as they have always been.
+===================================================== */
+
+/* Paste the lyrics in as one block, separated by commas.
+   splitLyrics() below turns them into one line on screen each. */
+
+const LYRIC_TEXT =
+    "if you're lookin into her eyes,  if she's holdin on to you so tight, " +
+    "the way  i did before ,  i overdosed, Should've known your love was a game,  " +
+    "Now I can't get you out of my brain,  Ooh, it's such a shame , " +
+    "That we don't talk anymore (we don't, we don't) , " +
+    "We don't talk anymore (we don't, we don't)  We don't talk anymore like we used to do,  " +
+    "We don't love anymore (we don't, we don't) , " +
+    "What was all of it for? (We don't, we don't),  " +
+    "Ooh, we don't talk anymore, like we used to do";
+
+/* Only a shout sits just after a comma. Any other comma is a
+   real break, so "Ooh, it's such a shame" stays in one piece. */
+
+const SHOUTS = ["Ooh", "Oh", "Ah", "Hey", "Yeah", "Baby", "Whoa"];
+
+/* A tail that only finishes the line in front of it. */
+
+const CONTINUATIONS = ["like we used to", "like we used", "we used to do"];
+
+function splitLyrics(text) {
+    /* 1. Cut at every comma, but never inside (parentheses) */
+
+    const chunks = [];
+
+    let current = "";
+    let depth = 0;
+
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+
+        if (ch === "(") depth++;
+        else if (ch === ")") depth = Math.max(0, depth - 1);
+
+        if (ch === "," && depth === 0) {
+            chunks.push(current);
+            current = "";
+        } else {
+            current += ch;
+        }
+    }
+
+    chunks.push(current);
+
+    /* 2. A double space in front of a capital also means a line
+          was typed next to another one. "the way  i did before"
+          has a double space too, but "i" is not a capital, so
+          that one is left alone. */
+
+    const lines = [];
+
+    chunks.forEach(function (raw) {
+        raw.split(/\s{2,}(?=[A-Z])/).forEach(function (part) {
+            const piece = part.replace(/\s+/g, " ").trim();
+
+            if (piece) lines.push(piece);
+        });
+    });
+
+    /* 3. Put a shout back with the line it belongs to */
+
+    const joined = [];
+
+    lines.forEach(function (line) {
+        const last = joined.length - 1;
+
+        if (last >= 0 && SHOUTS.indexOf(joined[last]) !== -1) {
+            joined[last] = joined[last] + ", " + line;
+        } else {
+            joined.push(line);
+        }
+    });
+
+    /* 4. And the same for a tail that only finishes the line */
+
+    const out = [];
+
+    joined.forEach(function (line) {
+        const last = out.length - 1;
+        const isTail = CONTINUATIONS.some(function (tail) {
+            return line.toLowerCase().indexOf(tail) === 0;
+        });
+
+        if (last >= 0 && isTail) {
+            out[last] = out[last] + " " + line;
+        } else {
+            out.push(line);
+        }
+    });
+
+    return out;
+}
+
+const LYRIC_LINES = splitLyrics(LYRIC_TEXT);
+
+/* How long each line stays on screen, in milliseconds.
+   Tuned to a quicker vocal, so the words keep up with the song.
+   The hooks still get a little longer than the plain lines. */
+
+const LINE_DURATIONS = [
+    2600, // "if you're lookin into her eyes"
+    2600, // "if she's holdin on to you so tight"
+    2200, // "the way i did before"
+    2000, // "i overdosed"
+    2700, // "Should've known your love was a game"
+    2700, // "Now I can't get you out of my brain"
+    2100, // "Ooh, it's such a shame"
+    3200, // "That we don't talk anymore (we don't, we don't)" - the first hook
+    2600, // "We don't talk anymore (we don't, we don't)"
+    2900, // "We don't talk anymore like we used to do"
+    3100, // "We don't love anymore (we don't, we don't)"
+    2700, // "What was all of it for? (We don't, we don't)"
+    3400  // "Ooh, we don't talk anymore like we used to do" - lingers
+];
+
+/* One number to match the song.
+   1 is the timing above. Drop it to go faster, raise it to
+   go slower. 0.85 is a touch quicker, 1.15 is a touch slower. */
+
+const LYRIC_SPEED = 1;
+
+function holdTime(i) {
+    return Math.round(
+        LINE_DURATIONS[i % LINE_DURATIONS.length] * LYRIC_SPEED
+    );
+}
+
+/* =====================================================
+   8. THE REACT PARTS
+===================================================== */
+
+function GardenCanvas(props) {
+    const canvasRef = useRef(null);
+
+    useEffect(function () {
+        const garden = createGarden(canvasRef.current);
+
+        if (!garden) {
+            props.onFailed();
+            return;
+        }
+
+        garden.start();
+        props.onReady();
+
+        return function () {
+            garden.dispose();
+        };
+    }, []);
+
+    return <canvas ref={canvasRef} className="garden-canvas"></canvas>;
+}
+
+function Lyrics() {
+    const [index, setIndex] = useState(0);
+    const stateRef = useRef({ i: 0, timer: 0 });
+
+    useEffect(function () {
+        const s = stateRef.current;
+
+        function advance() {
+            s.timer = setTimeout(function () {
+                /* The last line is the ending of the song. When it
+                   has had its time we simply stop: no timer is set
+                   again, so it stays on screen as the final frame
+                   and the words never go back to the first line. */
+
+                if (s.i >= LYRIC_LINES.length - 1) return;
+
+                s.i += 1;
+                setIndex(s.i);
+                advance();
+            }, holdTime(s.i));
+        }
+
+        advance();
+
+        return function () {
+            clearTimeout(s.timer);
+        };
+    }, []);
+
+    return (
+        <div className="lyric-stage">
+            {LYRIC_LINES.map(function (line, i) {
+                const size = line.length > 44
+                    ? " very-long"
+                    : line.length > 34
+                        ? " long"
+                        : "";
+
+                return (
+                    <div
+                        key={i}
+                        className={"lyric" + size + (i === index ? " active" : "")}
+                    >
+                        {line}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+function App() {
+    const [ready, setReady] = useState(false);
+    const [broken, setBroken] = useState(!window.THREE);
+
+    function onReady() {
+        setTimeout(function () { setReady(true); }, 260);
+    }
+
+    function onFailed() {
+        setBroken(true);
+    }
+
+    if (broken) {
+        return (
+            <div className="fatal">
+                <div>
+                    The moonlit garden needs WebGL and an internet connection<br />
+                    for the graphics library, and this browser could not open either.
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="reel">
+            <GardenCanvas onReady={onReady} onFailed={onFailed} />
+
+            <div className="scrim"></div>
+            <div className="vignette"></div>
+
+            <div className="film-grain"></div>
+            <div className="cine-top"></div>
+            <div className="cine-bottom"></div>
+
+            <Lyrics />
+
+            <div className="bottom-heart">&#9829;</div>
+
+
+            <div className={"loader" + (ready ? " hidden" : "")}>
+                <div className="dot"></div>
+                <span>growing the garden</span>
+            </div>
+        </div>
+    );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App></App>);
+
+</script>
+
+</body>
+</html>

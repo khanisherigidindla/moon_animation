@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>I Think They Call This Love</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #0d0309;
+}
+
+.reel {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(255, 90, 140, .28),
+            transparent 42%
+        ),
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(255, 160, 90, .16),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 80%,
+            rgba(225, 60, 130, .22),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #180410,
+            #3a0f1e,
+            #6b1f35,
+            #450d1a,
+            #0a0205
+        );
+
+    animation: hue-spin 22s linear infinite;
+}
+
+/* Color-cycle the whole reel through the spectrum */
+
+@keyframes hue-spin {
+
+    from {
+        filter: hue-rotate(0deg);
+    }
+
+    to {
+        filter: hue-rotate(360deg);
+    }
+}
+
+/* Soft cinematic glow */
+
+.glow {
+    position: absolute;
+    width: 70vw;
+    height: 70vw;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 100, 150, .22),
+            transparent 68%
+        );
+
+    filter: blur(40px);
+
+    animation: breathe 7s ease-in-out infinite alternate;
+}
+
+@keyframes breathe {
+    from {
+        transform: translate(-50%, -50%) scale(.85);
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1.15);
+    }
+}
+
+/* Background floating hearts */
+
+.hearts {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.heart {
+    position: absolute;
+    bottom: -80px;
+
+    color: rgba(255, 170, 190, .58);
+
+    text-shadow:
+        0 0 10px rgba(255, 90, 160, .8),
+        0 0 30px rgba(255, 60, 130, .5);
+
+    animation: rise linear forwards;
+}
+
+@keyframes rise {
+
+    0% {
+        transform:
+            translateY(0)
+            translateX(0)
+            scale(.5)
+            rotate(0deg);
+
+        opacity: 0;
+    }
+
+    10% {
+        opacity: .7;
+    }
+
+    50% {
+        transform:
+            translateY(-50vh)
+            translateX(40px)
+            scale(1)
+            rotate(12deg);
+    }
+
+    100% {
+        transform:
+            translateY(-120vh)
+            translateX(-40px)
+            scale(.8)
+            rotate(-15deg);
+
+        opacity: 0;
+    }
+}
+
+/* Small glowing particles */
+
+.particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+
+    width: 3px;
+    height: 3px;
+
+    border-radius: 50%;
+
+    background: #ffe7ee;
+
+    box-shadow:
+        0 0 10px #ff9fb8;
+
+    animation: sparkle 3s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+
+    0%, 100% {
+        opacity: .1;
+        transform: scale(.5);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.6);
+    }
+}
+
+
+/* =================================================
+   LYRIC AREA
+   ================================================= */
+
+.lyric-container {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    width: 82%;
+
+    z-index: 20;
+
+    text-align: center;
+}
+
+
+/*
+    IMPORTANT:
+
+    All lyric lines occupy exactly the
+    same position.
+
+    Nothing moves around the screen.
+*/
+
+.lyric {
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%)
+        translateY(20px)
+        scale(.94);
+
+    opacity: 0;
+
+    filter: blur(4px);
+
+    color: #fff8fb;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(38px, 5vw, 82px);
+
+    line-height: 1.3;
+
+    font-weight: 500;
+
+    font-style: italic;
+
+    letter-spacing: .6px;
+
+    text-align: center;
+
+    /*
+        Strong readability over
+        moving background
+    */
+
+    text-shadow:
+
+        0 3px 8px rgba(0,0,0,.9),
+
+        0 0 20px rgba(255,120,170,.4),
+
+        0 0 45px rgba(255,80,140,.22);
+
+    transition:
+        opacity .8s ease,
+        transform .8s ease,
+        filter .8s ease;
+}
+
+
+/* Active lyric */
+
+.lyric.active {
+
+    opacity: 1;
+
+    filter: blur(0);
+
+    transform:
+        translateY(-50%)
+        translateY(0)
+        scale(1);
+
+    animation: lyric-shine 2.8s ease-in-out infinite;
+}
+
+@keyframes lyric-shine {
+
+    0%, 100% {
+
+        text-shadow:
+
+            0 3px 8px rgba(0,0,0,.9),
+
+            0 0 20px rgba(255,120,170,.55),
+
+            0 0 45px rgba(255,80,140,.3);
+    }
+
+    50% {
+
+        text-shadow:
+
+            0 3px 8px rgba(0,0,0,.9),
+
+            0 0 30px rgba(255,170,210,.8),
+
+            0 0 60px rgba(255,110,170,.45);
+    }
+}
+
+
+/* Tiny heart above lyrics */
+
+.love-symbol {
+
+    position: absolute;
+
+    left: 50%;
+    top: -110px;
+
+    transform: translateX(-50%);
+
+    font-family: Arial, sans-serif;
+
+    font-size: 42px;
+
+    color: #ffc0d8;
+
+    filter:
+        drop-shadow(
+            0 0 15px
+            rgba(255,120,180,.9)
+        );
+
+    animation: heartbeat 1.6s infinite;
+}
+
+@keyframes heartbeat {
+
+    0%, 100% {
+        transform:
+            translateX(-50%)
+            scale(1);
+    }
+
+    15% {
+        transform:
+            translateX(-50%)
+            scale(1.2);
+    }
+
+    30% {
+        transform:
+            translateX(-50%)
+            scale(1);
+    }
+
+    45% {
+        transform:
+            translateX(-50%)
+            scale(1.12);
+    }
+}
+
+
+/* Bottom subtle line */
+
+.bottom-heart {
+
+    position: absolute;
+
+    bottom: 7%;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 20;
+
+    color:
+        rgba(255,210,225,.55);
+
+    font-family: Arial, sans-serif;
+
+    font-size: 18px;
+
+    letter-spacing: 5px;
+}
+
+
+/* Cinematic vignette */
+
+.vignette {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 15;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 40%,
+            rgba(0,0,0,.18) 65%,
+            rgba(0,0,0,.7) 100%
+        );
+}
+
+
+/* =========================================
+   NEBULA - drifting light clouds
+========================================= */
+
+.nebula {
+    position: absolute;
+    inset: -25%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.nebula-blob {
+    position: absolute;
+    width: 70vmax;
+    height: 70vmax;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: .35;
+}
+
+.nebula-blob.a {
+    left: -15%;
+    top: -10%;
+    background: rgba(255, 120, 170, .30);
+    animation: nebula-a 26s ease-in-out infinite alternate;
+}
+
+.nebula-blob.b {
+    left: 35%;
+    top: 30%;
+    background: rgba(255, 130, 180, .26);
+    animation: nebula-b 34s ease-in-out infinite alternate;
+}
+
+.nebula-blob.c {
+    left: 60%;
+    top: -25%;
+    background: rgba(255, 190, 120, .22);
+    animation: nebula-c 40s ease-in-out infinite alternate;
+}
+
+@keyframes nebula-a {
+    from {
+        transform: translate(0, 0) scale(1);
+    }
+
+    to {
+        transform: translate(28%, 22%) scale(1.35);
+    }
+}
+
+@keyframes nebula-b {
+    from {
+        transform: translate(0, 0) scale(1.2);
+    }
+
+    to {
+        transform: translate(-25%, -18%) scale(.85);
+    }
+}
+
+@keyframes nebula-c {
+    from {
+        transform: translate(0, 0) scale(.9);
+    }
+
+    to {
+        transform: translate(22%, -30%) scale(1.45);
+    }
+}
+
+
+/* =========================================
+   PULSE RINGS - soft love ripples
+========================================= */
+
+.rings {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    width: 130px;
+    height: 130px;
+
+    margin: -65px 0 0 -65px;
+
+    border: 2px solid rgba(255, 170, 210, .45);
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 22px rgba(255, 120, 170, .4),
+        inset 0 0 22px rgba(255, 120, 170, .2);
+
+    animation: ring-pulse 5s ease-out infinite;
+}
+
+@keyframes ring-pulse {
+
+    0% {
+        transform: scale(.12);
+        opacity: .9;
+    }
+
+    100% {
+        transform: scale(3.4);
+        opacity: 0;
+    }
+}
+
+
+/* =========================================
+   SHOOTING STARS
+========================================= */
+
+.shooting-stars {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.shooting-star {
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    width: 150px;
+    height: 2px;
+
+    border-radius: 2px;
+
+    background: linear-gradient(
+        to right,
+        rgba(255, 235, 245, 0),
+        rgba(255, 235, 245, .9)
+    );
+
+    transform-origin: 0 50%;
+
+    opacity: 0;
+
+    animation: shoot 9s linear infinite;
+}
+
+@keyframes shoot {
+
+    0% {
+        transform: translate(-22vw, -12vh) rotate(23deg);
+        opacity: 0;
+    }
+
+    6% {
+        transform: translate(-10vw, -2vh) rotate(23deg);
+        opacity: 1;
+    }
+
+    16% {
+        transform: translate(46vw, 20vh) rotate(23deg);
+        opacity: .75;
+    }
+
+    24% {
+        transform: translate(62vw, 30vh) rotate(23deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translate(62vw, 30vh) rotate(23deg);
+        opacity: 0;
+    }
+}
+
+
+/* Responsive */
+
+@media (max-width: 900px) {
+
+    .lyric-container {
+        width: 88%;
+    }
+
+    .lyric {
+        font-size: 7vw;
+    }
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="reel">
+
+    <!-- Cinematic glow -->
+    <div class="glow"></div>
+
+    <!-- Nebula clouds -->
+    <div class="nebula">
+        <span class="nebula-blob a"></span>
+        <span class="nebula-blob b"></span>
+        <span class="nebula-blob c"></span>
+    </div>
+
+    <!-- Pulse rings -->
+    <div
+        class="rings"
+        id="rings">
+    </div>
+
+    <!-- Shooting stars -->
+    <div
+        class="shooting-stars"
+        id="shootingStars">
+    </div>
+
+    <!-- Floating hearts -->
+    <div
+        class="hearts"
+        id="hearts">
+    </div>
+
+    <!-- Sparkles -->
+    <div
+        class="particles"
+        id="particles">
+    </div>
+
+
+    <!-- ================================
+         LYRICS
+    ================================= -->
+
+    <div class="lyric-container">
+
+        <div class="love-symbol">
+            ♡
+        </div>
+
+
+        <!-- LINE 1 -->
+
+        <div class="lyric active">
+            All I dream of is your eyes,
+        </div>
+
+
+        <!-- LINE 2 -->
+
+        <div class="lyric">
+            All I long for is your touch.
+        </div>
+
+
+        <!-- LINE 3 -->
+
+        <div class="lyric">
+            And darlin' something tells me,
+        </div>
+
+
+        <!-- LINE 4 -->
+
+        <div class="lyric">
+            that's enough mmmm..,
+        </div>
+
+
+        <!-- LINE 5 -->
+
+        <div class="lyric">
+            You can say that, I'm a fool,
+        </div>
+
+
+        <!-- LINE 6 -->
+
+        <div class="lyric">
+            And I don't know, very much,
+        </div>
+
+
+        <!-- LINE 7 -->
+
+        <div class="lyric">
+            But I think they call this love
+        </div>
+
+    </div>
+
+
+    <div class="bottom-heart">
+        ♥
+    </div>
+
+
+    <div class="vignette"></div>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   LYRIC TIMING
+========================================= */
+
+/*
+    Per-line duration in milliseconds.
+
+    Bigger number = line stays longer (slower).
+    Smaller number = line changes faster.
+
+    LINE 4 holds a soft pause ("mmmm..,") and
+    LINE 7 is the final line so it lingers most.
+*/
+
+const LINE_DURATIONS = [
+    3500, // Line 1 - "All I dream of is your eyes,"
+    3500, // Line 2 - "All I long for is your touch."
+    3500, // Line 3 - "And darlin' something tells me,"
+    4500, // Line 4 - "that's enough mmmm..," - pause
+    3500, // Line 5 - "You can say that, I'm a fool,"
+    4000, // Line 6 - "And I don't know, very much,"
+    4500  // Line 7 - "But I think they call this love" - lingers
+];
+
+
+const lyrics =
+    document.querySelectorAll(".lyric");
+
+
+let current = 0;
+
+
+function nextLyric() {
+
+    lyrics[current]
+        .classList
+        .remove("active");
+
+
+    current++;
+
+
+    if (current >= lyrics.length) {
+        current = 0;
+    }
+
+
+    lyrics[current]
+        .classList
+        .add("active");
+
+
+    /* Keep the cycle going with THIS line's duration */
+
+    setTimeout(
+        nextLyric,
+        LINE_DURATIONS[current]
+    );
+}
+
+
+/* Start the cycle (LINE 1 is already active in the HTML) */
+
+setTimeout(
+    nextLyric,
+    LINE_DURATIONS[0]
+);
+
+
+/* =========================================
+   FLOATING HEARTS
+========================================= */
+
+const heartContainer =
+    document.getElementById("hearts");
+
+
+const heartSymbols = [
+    "♥",
+    "♡",
+    "❤",
+    "💕",
+    "💗",
+    "💖"
+];
+
+
+function createHeart() {
+
+    const heart =
+        document.createElement("span");
+
+
+    heart.className = "heart";
+
+
+    heart.textContent =
+        heartSymbols[
+            Math.floor(
+                Math.random() *
+                heartSymbols.length
+            )
+        ];
+
+
+    heart.style.left =
+        Math.random() * 100 + "%";
+
+
+    heart.style.fontSize =
+        (16 + Math.random() * 35) + "px";
+
+
+    const duration =
+        7 + Math.random() * 7;
+
+
+    heart.style.animationDuration =
+        duration + "s";
+
+
+    heartContainer.appendChild(
+        heart
+    );
+
+
+    setTimeout(
+        () => heart.remove(),
+        (duration + 1) * 1000
+    );
+}
+
+
+/* Keep background alive */
+
+setInterval(
+    createHeart,
+    350
+);
+
+
+/* Initial hearts */
+
+for (
+    let i = 0;
+    i < 20;
+    i++
+) {
+
+    setTimeout(
+        createHeart,
+        i * 200
+    );
+}
+
+
+/* =========================================
+   PARTICLES
+========================================= */
+
+const particleContainer =
+    document.getElementById(
+        "particles"
+    );
+
+
+for (
+    let i = 0;
+    i < 120;
+    i++
+) {
+
+    const particle =
+        document.createElement("span");
+
+
+    particle.className =
+        "particle";
+
+
+    particle.style.left =
+        Math.random() * 100 + "%";
+
+
+    particle.style.top =
+        Math.random() * 100 + "%";
+
+
+    const size =
+        1 + Math.random() * 3;
+
+
+    particle.style.width =
+        size + "px";
+
+
+    particle.style.height =
+        size + "px";
+
+
+    particle.style.animationDuration =
+        (2 + Math.random() * 4) + "s";
+
+
+    particle.style.animationDelay =
+        Math.random() * 4 + "s";
+
+
+    particleContainer.appendChild(
+        particle
+    );
+}
+
+
+/* =========================================
+   PULSE RINGS
+========================================= */
+
+const ringContainer =
+    document.getElementById("rings");
+
+
+for (
+    let i = 0;
+    i < 6;
+    i++
+) {
+
+    const ring =
+        document.createElement("span");
+
+
+    ring.className = "ring";
+
+
+    const ringDuration =
+        4.5 + Math.random() * 2.5;
+
+
+    ring.style.animationDuration =
+        ringDuration + "s";
+
+
+    ring.style.animationDelay =
+        -Math.random() * ringDuration + "s";
+
+
+    ringContainer.appendChild(
+        ring
+    );
+}
+
+
+/* =========================================
+   SHOOTING STARS
+========================================= */
+
+const shootingContainer =
+    document.getElementById("shootingStars");
+
+
+function createShootingStar() {
+
+    const star =
+        document.createElement("span");
+
+
+    star.className = "shooting-star";
+
+
+    star.style.animationDelay =
+        Math.random() * 12 + "s";
+
+
+    shootingContainer.appendChild(
+        star
+    );
+}
+
+
+createShootingStar();
+createShootingStar();
+
+</script>
+
+</body>
+</html>
+```
